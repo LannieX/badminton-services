@@ -1,0 +1,224 @@
+[
+  {
+    "code": "004",
+    "name": "ธนาคารกสิกรไทย",
+    "logo": "/banks/kbank.svg",
+    "color": "#138f2d"
+  },
+  {
+    "code": "014",
+    "name": "ธนาคารไทยพาณิชย์",
+    "logo": "/banks/scb.svg",
+    "color": "#4e2e7f"
+  },
+  {
+    "code": "025",
+    "name": "ธนาคารกรุงศรีอยุธยา",
+    "logo": "/banks/bay.svg",
+    "color": "#fec43b"
+  },
+  {
+    "code": "002",
+    "name": "ธนาคารกรุงเทพ",
+    "logo": "/banks/bbl.svg",
+    "color": "#1e4598"
+  },
+  {
+    "code": "006",
+    "name": "ธนาคารกรุงไทย",
+    "logo": "/banks/ktb.svg",
+    "color": "#1ba5e1"
+  },
+  {
+    "code": "011",
+    "name": "ธนาคารทหารไทยธนชาต (ttb)",
+    "logo": "/banks/ttb.svg",
+    "color": "#ffffff"
+  },
+  {
+    "code": "030",
+    "name": "ธนาคารออมสิน",
+    "logo": "/banks/gsb.svg",
+    "color": "#eb198d"
+  },
+  {
+    "code": "022",
+    "name": "ธนาคารซีไอเอ็มบี ไทย",
+    "logo": "/banks/cimb.svg",
+    "color": "#7e2f36"
+  },
+  {
+    "code": "024",
+    "name": "ธนาคารยูโอบี",
+    "logo": "/banks/uob.svg",
+    "color": "#0b3979"
+  },
+  {
+    "code": "033",
+    "name": "ธนาคารอาคารสงเคราะห์",
+    "logo": "/banks/ghb.svg",
+    "color": "#f57d23"
+  },
+  {
+    "code": "034",
+    "name": "ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร (ธ.ก.ส.)",
+    "logo": "/banks/baac.svg",
+    "color": "#4b9b1d"
+  },
+  {
+    "code": "066",
+    "name": "ธนาคารอิสลามแห่งประเทศไทย",
+    "logo": "/banks/ibank.svg",
+    "color": "#184615"
+  },
+  {
+    "code": "067",
+    "name": "ธนาคารทิสโก้",
+    "logo": "/banks/tisco.svg",
+    "color": "#12549f"
+  },
+  {
+    "code": "069",
+    "name": "ธนาคารเกียรตินาคินภัทร",
+    "logo": "/banks/kk.svg",
+    "color": "#199cc5"
+  },
+  {
+    "code": "070",
+    "name": "ธนาคารไอซีบีซี (ไทย)",
+    "logo": "/banks/icbc.svg",
+    "color": "#c50f1c"
+  },
+  {
+    "code": "071",
+    "name": "ธนาคารไทยเครดิต",
+    "logo": "/banks/tcrb.svg",
+    "color": "#0a4ab3"
+  },
+  {
+    "code": "073",
+    "name": "ธนาคารแลนด์ แอนด์ เฮ้าส์",
+    "logo": "/banks/lhb.svg",
+    "color": "#6d6e71"
+  },
+  {
+    "code": "026",
+    "name": "ธนาคารเมกะ สากลพาณิชย์",
+    "logo": "/banks/mega.svg",
+    "color": "#815e3b"
+  },
+  {
+    "code": "052",
+    "name": "ธนาคารแห่งประเทศจีน (ไทย)",
+    "logo": "/banks/boc.svg",
+    "color": "#ffffff"
+  },
+  {
+    "code": "079",
+    "name": "ธนาคารเอเอ็นแซด (ไทย)",
+    "logo": "/banks/anz.svg",
+    "color": "#ffffff"
+  },
+  {
+    "code": "080",
+    "name": "ธนาคารซูมิโตโม มิตซุย ทรัสต์ (ไทย)",
+    "logo": "/banks/smtb.svg",
+    "color": "#ffffff"
+  },
+  {
+    "code": "035",
+    "name": "ธนาคารเพื่อการส่งออกและนำเข้าแห่งประเทศไทย (EXIM)",
+    "logo": "/banks/exim.svg",
+    "color": "#ffffff"
+  },
+  {
+    "code": "098",
+    "name": "ธนาคารพัฒนาวิสาหกิจขนาดกลางและขนาดย่อมแห่งประเทศไทย (SME D Bank)",
+    "logo": "/banks/sme.svg",
+    "color": "#ffffff"
+  },
+  {
+    "code": "007",
+    "name": "ธนาคารอินเดียน โอเวอร์ซีส์",
+    "logo": "/banks/iob.svg",
+    "color": "#ffffff"
+  },
+  {
+    "code": "009",
+    "name": "ธนาคารโอเวอร์ซี-ไชนีส แบงกิ้ง คอร์ปอเรชั่น (OCBC)",
+    "logo": "/banks/ocbc.svg",
+    "color": "#ffffff"
+  },
+  {
+    "code": "008",
+    "name": "ธนาคารเจพีมอร์แกน เชส",
+    "logo": "/banks/jpm.svg",
+    "color": "#321c10"
+  },
+  {
+    "code": "010",
+    "name": "ธนาคารเอ็มยูเอฟจี (MUFG)",
+    "logo": "/banks/mufg.svg",
+    "color": "#d61323"
+  },
+  {
+    "code": "017",
+    "name": "ธนาคารซิตี้แบงก์",
+    "logo": "/banks/citi.svg",
+    "color": "#1583c7"
+  },
+  {
+    "code": "018",
+    "name": "ธนาคารซูมิโตโม มิตซุย แบงกิ้ง คอร์ปอเรชั่น",
+    "logo": "/banks/smbc.svg",
+    "color": "#a0d235"
+  },
+  {
+    "code": "020",
+    "name": "ธนาคารสแตนดาร์ดชาร์เตอร์ด (ไทย)",
+    "logo": "/banks/sc.svg",
+    "color": "#0f6ea1"
+  },
+  {
+    "code": "023",
+    "name": "ธนาคารอาร์ เอช บี (RHB)",
+    "logo": "/banks/rhb.svg",
+    "color": "#ffffff"
+  },
+  {
+    "code": "027",
+    "name": "ธนาคารแห่งอเมริกา",
+    "logo": "/banks/boa.svg",
+    "color": "#e11e3c"
+  },
+  {
+    "code": "028",
+    "name": "ธนาคารเครดิต อะกริกอล",
+    "logo": "/banks/cacib.svg",
+    "color": "#0e765b"
+  },
+  {
+    "code": "031",
+    "name": "ธนาคารเอชเอสบีซี (HSBC)",
+    "logo": "/banks/hsbc.svg",
+    "color": "#fd0d1b"
+  },
+  {
+    "code": "032",
+    "name": "ธนาคารดอยซ์แบงก์",
+    "logo": "/banks/db.svg",
+    "color": "#0522a5"
+  },
+  {
+    "code": "039",
+    "name": "ธนาคารมิซูโฮ",
+    "logo": "/banks/mb.svg",
+    "color": "#150b78"
+  },
+  {
+    "code": "045",
+    "name": "ธนาคารบีเอ็นพี พารีบาส์",
+    "logo": "/banks/bnp.svg",
+    "color": "#14925e"
+  }
+]

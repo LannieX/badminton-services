@@ -3,3 +3,8 @@ node_modules/
 .env.*
 !.env.example
 coverage/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+.wrangler/
+dist/

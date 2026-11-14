@@ -1,0 +1,2 @@
+DATABASE_URL="postgresql://USER:PASSWORD@YOUR-NEON-POOLER-HOST/neondb?sslmode=require"
+API_TOKEN="replace-with-a-long-random-api-token"

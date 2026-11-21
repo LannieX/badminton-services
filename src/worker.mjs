@@ -28,10 +28,13 @@ export function createWorker(
         'X-Content-Type-Options': 'nosniff',
       });
       if (origin && !allowed.includes(origin)) return json(403, 'Origin นี้ไม่ได้รับอนุญาต');
-      if (origin) cors.set('Access-Control-Allow-Origin', origin);
+      if (origin) {
+        cors.set('Access-Control-Allow-Origin', origin);
+        cors.set('Access-Control-Allow-Credentials', 'true');
+      }
       if (request.method === 'OPTIONS') {
-        cors.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-        cors.set('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+        cors.set('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+        cors.set('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With');
         cors.set('Access-Control-Max-Age', '600');
         return new Response(null, { status: 204, headers: cors });
       }
@@ -40,12 +43,12 @@ export function createWorker(
         for (const [key, value] of cors) headers.set(key, value);
         return new Response(response.body, { status: response.status, headers });
       };
-      
+
       if (!env.DATABASE_URL) return respond(json(503, 'ยังไม่ได้ตั้งค่าฐานข้อมูล'));
       const pool = createDatabase(env.DATABASE_URL);
       pool.on('error', () => console.error('Database connection error'));
       try {
-        return respond(await createHandler(createRepository(pool), pool)(request));
+        return respond(await createHandler(createRepository(pool), pool, env)(request));
       } finally {
         ctx.waitUntil(pool.end().catch(() => console.error('Database cleanup error')));
       }

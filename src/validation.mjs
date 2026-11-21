@@ -81,11 +81,19 @@ export const paymentInput = z
     sessionId: z.string().min(1).max(100).optional(),
     totalCents: z.number().int().min(1).max(999999900),
     playerCount: z.number().int().min(1).max(500),
+    memberIds: z.array(z.uuid()).min(1).max(500).optional(),
     method: z.enum(['promptpay', 'bank']),
     recipient: z.string().regex(/^\d{10,15}$/),
     bankCode: z.string().optional(),
   })
   .strict()
+  .refine(
+    (input) =>
+      !input.memberIds ||
+      (input.memberIds.length === input.playerCount &&
+        new Set(input.memberIds).size === input.memberIds.length),
+    { message: 'กรุณาเลือกสมาชิกให้ตรงจำนวนผู้เล่น' },
+  )
   .refine((input) => input.totalCents >= input.playerCount, {
     message: 'ยอดต่อคนต้องไม่น้อยกว่า 0.01 บาท',
   })

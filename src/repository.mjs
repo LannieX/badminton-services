@@ -1,11 +1,12 @@
+import { syncPaymentMembers, samePaymentMembers } from './billing.mjs';
 export class ApiError extends Error {
   constructor(status, message) {
     super(message);
     this.status = status;
   }
 }
-const sessionSelect = `SELECT s.id,s.name,s.date::text,s.expenses,s.members,s.version,
- COALESCE((SELECT jsonb_agg(jsonb_build_object('id',p.id,'sessionId',p.session_id,'totalCents',p.total_cents,'playerCount',p.player_count,'method',p.method,'recipient',p.recipient,'bankCode',p.bank_code,'createdAt',p.created_at) ORDER BY p.created_at DESC,p.id) FROM rally_payment_requests p WHERE p.session_id=s.id AND p.deleted_at IS NULL),'[]'::jsonb) AS "paymentRequests",
+export const sessionSelect = `SELECT s.id,s.name,s.date::text,s.expenses,s.members,s.version,
+ COALESCE((SELECT jsonb_agg(jsonb_build_object('id',p.id,'sessionId',p.session_id,'totalCents',p.total_cents,'playerCount',p.player_count,'method',p.method,'recipient',p.recipient,'bankCode',p.bank_code,'createdAt',p.created_at,'createdBy',p.created_by,'creatorName',(SELECT name FROM rally_players WHERE id=p.created_by),'members',COALESCE((SELECT jsonb_agg(jsonb_build_object('id',u.id,'name',u.name,'username',CASE WHEN u.kind='guest' THEN '' ELSE u.username END,'kind',u.kind,'avatar',u.avatar_url,'status',u.status,'amountCents',pm.amount_cents,'paidAt',pm.paid_at) ORDER BY pm.position) FROM rally_payment_members pm JOIN rally_players u ON u.id=pm.player_id WHERE pm.payment_id=p.id),'[]'::jsonb)) ORDER BY p.created_at DESC,p.id) FROM rally_payment_requests p WHERE p.session_id=s.id AND p.deleted_at IS NULL),'[]'::jsonb) AS "paymentRequests",
  COALESCE((SELECT jsonb_agg(jsonb_build_object('id',m.id,'time',m.time,'mode',m.mode,'names',m.names,'scores',m.scores,'target',m.target) ORDER BY m.time DESC,m.id) FROM rally_matches m WHERE m.session_id=s.id),'[]'::jsonb) AS matches FROM rally_sessions s`;
 export function createRepository(pool) {
   const get = async (id, db = pool) =>
@@ -80,7 +81,7 @@ export function createRepository(pool) {
       }
       return (await pool.query(sessionSelect + ' ORDER BY s.date DESC,s.created_at DESC')).rows;
     },
-    async createPayment(input) {
+    async createPayment(input, actorId = null) {
       const client = await pool.connect();
       try {
         await client.query('BEGIN');
@@ -89,6 +90,8 @@ export function createRepository(pool) {
           await client.query('SELECT * FROM rally_payment_requests WHERE id=$1', [input.id])
         ).rows[0];
         if (existing) {
+          if (actorId && existing.created_by && existing.created_by !== actorId)
+            throw new ApiError(409, 'รายการนี้มีผู้สร้างแล้ว กรุณาสร้างรายการใหม่');
           if (existing.deleted_at)
             throw new ApiError(409, 'รายการนี้ถูกลบแล้ว กรุณาเพิ่มรายการใหม่');
           if (
@@ -96,7 +99,8 @@ export function createRepository(pool) {
             existing.player_count !== input.playerCount ||
             existing.method !== input.method ||
             existing.recipient !== input.recipient ||
-            (existing.bank_code || undefined) !== input.bankCode
+            (existing.bank_code || undefined) !== input.bankCode ||
+            !(await samePaymentMembers(client, input.id, input))
           )
             throw new ApiError(409, 'รายการนี้ถูกบันทึกแล้วด้วยข้อมูลอื่น');
           const saved = await get(existing.session_id, client);
@@ -125,7 +129,7 @@ export function createRepository(pool) {
           );
         }
         await client.query(
-          'INSERT INTO rally_payment_requests(id,session_id,total_cents,player_count,method,recipient,bank_code) VALUES($1,$2,$3,$4,$5,$6,$7)',
+          'INSERT INTO rally_payment_requests(id,session_id,total_cents,player_count,method,recipient,bank_code,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',
           [
             input.id,
             sessionId,
@@ -134,8 +138,10 @@ export function createRepository(pool) {
             input.method,
             input.recipient,
             input.bankCode || null,
+            actorId,
           ],
         );
+        await syncPaymentMembers(client, input.id, input);
         await client.query(
           'UPDATE rally_sessions SET version=version+1,updated_at=now() WHERE id=$1',
           [sessionId],
@@ -179,7 +185,8 @@ export function createRepository(pool) {
           existing.player_count === payment.playerCount &&
           existing.method === payment.method &&
           existing.recipient === payment.recipient &&
-          (existing.bank_code || undefined) === payment.bankCode;
+          (existing.bank_code || undefined) === payment.bankCode &&
+          (await samePaymentMembers(client, id, payment));
         if ((!payment && existing.deleted_at) || unchanged) {
           const saved = await get(sessionId, client);
           await client.query('COMMIT');
@@ -208,11 +215,56 @@ export function createRepository(pool) {
             'UPDATE rally_payment_requests SET deleted_at=now() WHERE id=$1 AND session_id=$2',
             [id, sessionId],
           );
+        if (payment) await syncPaymentMembers(client, id, payment);
         await client.query(
           'UPDATE rally_sessions SET version=version+1,updated_at=now() WHERE id=$1',
           [sessionId],
         );
         const saved = await get(sessionId, client);
+        await client.query('COMMIT');
+        return saved;
+      } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+      } finally {
+        client.release();
+      }
+    },
+    async markPaid(paymentId, memberId, input, actorId) {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        const payment = (
+          await client.query(
+            'SELECT session_id FROM rally_payment_requests WHERE id=$1 AND deleted_at IS NULL',
+            [paymentId],
+          )
+        ).rows[0];
+        if (!payment) throw new ApiError(404, 'ไม่พบรายการค่าใช้จ่าย');
+        const session = (
+          await client.query('SELECT version FROM rally_sessions WHERE id=$1 FOR UPDATE', [
+            payment.session_id,
+          ])
+        ).rows[0];
+        const current = (
+          await client.query(
+            'SELECT id FROM rally_payment_requests WHERE id=$1 AND deleted_at IS NULL FOR UPDATE',
+            [paymentId],
+          )
+        ).rows[0];
+        if (!current) throw new ApiError(404, 'รายการนี้ถูกลบแล้ว');
+        if (session.version !== input.version)
+          throw new ApiError(409, 'ข้อมูลเปลี่ยนแปลง กรุณาตรวจสอบรายการล่าสุด');
+        const changed = await client.query(
+          `UPDATE rally_payment_members SET paid_at=CASE WHEN $3 THEN COALESCE(paid_at,now()) ELSE NULL END,confirmed_by=CASE WHEN $3 THEN $4::uuid ELSE NULL END WHERE payment_id=$1 AND player_id=$2 RETURNING player_id`,
+          [paymentId, memberId, input.paid, actorId],
+        );
+        if (!changed.rowCount) throw new ApiError(404, 'ไม่พบสมาชิกในรายการนี้');
+        await client.query(
+          'UPDATE rally_sessions SET version=version+1,updated_at=now() WHERE id=$1',
+          [payment.session_id],
+        );
+        const saved = await get(payment.session_id, client);
         await client.query('COMMIT');
         return saved;
       } catch (error) {

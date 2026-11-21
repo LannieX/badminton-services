@@ -17,7 +17,8 @@
     "build:worker": "wrangler deploy --dry-run",
     "deploy": "wrangler deploy",
     "cf:login": "wrangler login",
-    "cf:whoami": "wrangler whoami"
+    "cf:whoami": "wrangler whoami",
+    "admin:create": "node --env-file-if-exists=.env src/admin.mjs"
   },
   "dependencies": {
     "pg": "^8.16.3",

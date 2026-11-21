@@ -1,3 +1,4 @@
+import { adminFixture } from './auth-helper.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
@@ -57,13 +58,14 @@ test(
     try {
       await admin.query(`CREATE SCHEMA ${schema}`);
       await migrate(pool);
+      const fixture = await adminFixture(pool);
       server = createApp(createRepository(pool), pool);
       await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
       const base = `http://127.0.0.1:${server.address().port}/api`;
       const call = async (path, method = 'GET', body) => {
         const r = await fetch(base + path, {
           method,
-          headers: { 'Content-Type': 'application/json' },
+          headers: fixture.headers,
           body: body ? JSON.stringify(body) : undefined,
         });
         return { status: r.status, data: await r.json() };

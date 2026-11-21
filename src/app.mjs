@@ -2,8 +2,8 @@ import { createServer } from 'node:http';
 import { Readable } from 'node:stream';
 import { createHandler } from './handler.mjs';
 
-export function createApp(repository, pool) {
-  const handle = createHandler(repository, pool);
+export function createApp(repository, pool, env = process.env) {
+  const handle = createHandler(repository, pool, env);
   return createServer(async (req, res) => {
     try {
       const request = new Request(new URL(req.url, 'http://localhost'), {

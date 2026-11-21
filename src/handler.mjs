@@ -1,6 +1,7 @@
+import { resetPassword } from './passwords.mjs';
 import { assertPaymentManager } from './billing.mjs';
 import { createTournamentService } from './tournaments.mjs';
-import { createAuth, sessionCookie, cookieToken, SESSION_MAX_AGE } from './auth.mjs';
+import { createAuth, sessionCookie, cookieToken, SESSION_MAX_AGE, digest } from './auth.mjs';
 import { createPlayerService, profileInput } from './players.mjs';
 import {
   sessionInput,
@@ -99,6 +100,11 @@ export function createHandler(repository, pool, env = {}) {
           { 'Set-Cookie': sessionCookie(req, cookieToken(req), false, remaining) },
         );
       }
+      if (req.method === 'POST' && path === '/api/auth/reset-password')
+        return send(
+          200,
+          await resetPassword(pool, actor, await body(req), await digest(cookieToken(req))),
+        );
       if (req.method === 'PUT' && path === '/api/auth/me')
         return send(200, {
           user: await players.save(actor.id, parse(profileInput, await body(req)), actor),
@@ -136,7 +142,7 @@ export function createHandler(repository, pool, env = {}) {
       if (paymentPath && (req.method === 'PUT' || req.method === 'DELETE')) {
         const sessionId = decodeURIComponent(paymentPath[1]);
         const id = parse(paymentIdInput, decodeURIComponent(paymentPath[2]));
-        await assertPaymentManager(pool, actor, id);
+        await assertPaymentManager(pool, actor, id, req.method === 'DELETE');
         const input = parse(
           req.method === 'PUT' ? paymentEditInput : paymentVersionInput,
           await body(req),

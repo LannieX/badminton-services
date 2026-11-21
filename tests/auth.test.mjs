@@ -196,6 +196,11 @@ test(
         (await call(ownPath, 'DELETE', { version: ownSession.version }, strangerCookie)).status,
         403,
       );
+      assert.equal(
+        (await call(ownPath, 'DELETE', { version: ownSession.version })).status,
+        403,
+        'admin cannot delete another collector bill',
+      );
       const confirmationPath = `/payment-requests/${ownPayment.id}/members/${guestInput.id}`;
       assert.equal(
         (

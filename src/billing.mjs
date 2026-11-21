@@ -54,11 +54,16 @@ export async function samePaymentMembers(db, id, input) {
   );
 }
 
-export async function assertPaymentManager(pool, actor, id) {
-  if (actor.role === 'admin') return;
+export async function assertPaymentManager(pool, actor, id, ownerOnly = false) {
+  if (!ownerOnly && actor.role === 'admin') return;
   const payment = (
     await pool.query('SELECT created_by FROM rally_payment_requests WHERE id=$1', [id])
   ).rows[0];
   if (!payment || payment.created_by !== actor.id)
-    throw new ApiError(403, 'เฉพาะผู้เรียกเก็บหรือผู้ดูแลที่จัดการรายการนี้ได้');
+    throw new ApiError(
+      403,
+      ownerOnly
+        ? 'ลบได้เฉพาะรายการที่คุณเป็นผู้เรียกเก็บ'
+        : 'เฉพาะผู้เรียกเก็บหรือผู้ดูแลที่จัดการรายการนี้ได้',
+    );
 }

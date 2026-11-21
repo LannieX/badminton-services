@@ -3,8 +3,16 @@ node_modules/
 .env.*
 !.env.example
 coverage/
+
+# Local Worker secrets and deployment state
 .dev.vars
 .dev.vars.*
 !.dev.vars.example
 .wrangler/
-dist/
+.vercel/
+
+# Private key files
+*.pem
+*.key
+*.p12
+*.pfx

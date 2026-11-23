@@ -158,8 +158,6 @@ export function createHandler(repository, pool, env = {}) {
       }
       if (req.method === 'POST' && path === '/api/matches')
         return send(200, { session: await repository.finish(parse(matchInput, await body(req))) });
-      if (req.method !== 'GET' && actor.role !== 'admin')
-        throw new ApiError(403, 'เฉพาะ admin เท่านั้นที่แก้ไขข้อมูลได้');
       if (req.method === 'GET' && path === '/api/tournaments')
         return send(
           200,
@@ -170,8 +168,11 @@ export function createHandler(repository, pool, env = {}) {
       );
       if (tournamentPath) {
         const id = parse(paymentIdInput, tournamentPath[1]);
-        if (req.method === 'DELETE' && !tournamentPath[2])
+        if (req.method === 'DELETE' && !tournamentPath[2]) {
+          if (actor.role !== 'admin')
+            throw new ApiError(403, 'เฉพาะ admin เท่านั้นที่ลบทัวร์นาเมนต์ได้');
           return send(200, await tournaments.delete(id));
+        }
         if (req.method === 'GET' && !tournamentPath[2])
           return send(200, { tournament: await tournaments.get(id) });
         if (req.method === 'POST' && tournamentPath[2])
@@ -180,6 +181,8 @@ export function createHandler(repository, pool, env = {}) {
             await tournaments.finish(id, parse(paymentIdInput, tournamentPath[2]), await body(req)),
           );
       }
+      if (req.method !== 'GET' && actor.role !== 'admin')
+        throw new ApiError(403, 'เฉพาะ admin เท่านั้นที่แก้ไขข้อมูลได้');
       if (req.method === 'GET' && path === '/api/players') {
         const params = new URL(req.url).searchParams;
         const query = params.get('q') || '';

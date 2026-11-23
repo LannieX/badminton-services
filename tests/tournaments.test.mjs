@@ -124,7 +124,7 @@ test(
             viewerHeaders,
           )
         ).status,
-        403,
+        200,
       );
       await assert.rejects(
         service.finish(tournament.id, game.id, { scores: [16, 15] }),
